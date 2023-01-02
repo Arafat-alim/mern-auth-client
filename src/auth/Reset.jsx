@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-import { Toast } from "react-toastify/dist/components";
+
 
 const Reset = ({ match, history }) => {
   const [values, setValues] = useState({
