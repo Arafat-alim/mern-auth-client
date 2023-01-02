@@ -70,7 +70,7 @@ const Login = ({ history }) => {
             buttonText: "Login",
           });
           setMsg("");
-          alert("Login Error", error);
+          // alert("Login Error", error);
           toast.error(error.response.data.error);
         });
     }
