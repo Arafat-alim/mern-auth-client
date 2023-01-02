@@ -3,7 +3,7 @@ import { ToastContainer, toast } from "react-toastify";
 import Layout from "../core/Layout";
 import axios from "axios";
 
-const Forgot = () => {
+const Forgot = ({ history }) => {
   const [values, setValues] = useState({
     email: "",
     buttonText: "Request Password Reset Link",
@@ -17,23 +17,33 @@ const Forgot = () => {
 
   const clickSubmit = (e) => {
     e.preventDefault();
-    toast.warn("Please Wait...");
+    toast.warn("Please Wait ...");
 
-    axios({
-      method: "PUT",
-      url: `${process.env.REACT_APP_API}/api/forgot-password`,
-      data: { email },
-    })
-      .then((response) => {
-        console.log("FORGOT PASSWORD SUCCESS", response);
-        toast.success(response.data.message);
-        setValues({ ...values, buttonText: "Link Sent" });
+    if (email === "") {
+      toast.dismiss();
+      toast.error("Please fill up the Required Field");
+    } else {
+      axios({
+        method: "PUT",
+        url: `${process.env.REACT_APP_API}/api/forgot-password`,
+        data: { email },
       })
-      .catch((err) => {
-        console.log("FORGOT PASSWORD FAILED", err.response.data.error);
-        setValues({ ...values, email: "" });
-        toast.error(err.response.data.error);
-      });
+        .then((response) => {
+          console.log("FORGOT PASSWORD SUCCESS", response);
+          document.getElementById("forgotInput").disabled = true;
+          toast.success(response.data.message);
+          setValues({ ...values, buttonText: "Link Sent" });
+          setTimeout(() => {
+            toast.dark("You Are Redirecting to the Login Page.");
+            history.push("/login");
+          }, 5000);
+        })
+        .catch((err) => {
+          console.log("FORGOT PASSWORD FAILED", err.response.data.error);
+          setValues({ ...values, email: "" });
+          toast.error(err.response.data.error);
+        });
+    }
   };
   const passwordForgotForm = () => {
     return (
@@ -42,6 +52,7 @@ const Forgot = () => {
           <label className="text-muted">Enter Your Email</label>
           <input
             type="email"
+            id="forgotInput"
             value={email}
             onChange={handleChange("email")}
             className="form-control"
