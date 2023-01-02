@@ -32,7 +32,7 @@ const Signup = ({ history }) => {
       setMsg("");
       toast.error("Please Fill the Required Fields ");
     } else {
-      setMsg("");
+      setMsg("Please Wait ...");
       setValues({ ...values, buttonText: "Submitting" });
       axios({
         method: "POST",
@@ -41,6 +41,7 @@ const Signup = ({ history }) => {
       })
         .then((response) => {
           console.log("SIGNUP SUCESSS");
+          setMsg("");
           setValues({
             ...values,
             name: "",
