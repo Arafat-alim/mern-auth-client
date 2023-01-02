@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Signup = ({ history }) => {
   //! state
+  const [msg, setMsg] = useState("");
   const [values, setValues] = useState({
     name: "",
     email: "",
@@ -25,39 +26,46 @@ const Signup = ({ history }) => {
 
   //! Click Submit
   const clickSubmit = (event) => {
+    setMsg("Please Wait ...");
     event.preventDefault();
-    setValues({ ...values, buttonText: "Submitting" });
-    axios({
-      method: "POST",
-      url: `${process.env.REACT_APP_API}/api/signup`,
-      data: { name, email, password },
-    })
-      .then((response) => {
-        console.log("SIGNUP SUCESSS");
-        setValues({
-          ...values,
-          name: "",
-          email: "",
-          password: "",
-          buttonText: "Submitted",
-        });
-        toast.success(response.data.message);
-        setTimeout(() => {
-          toast.success(
-            `Hey ${
-              JSON.parse(response.config.data).name
-            }! You will be redirecting to login Page!`
-          );
-        }, 2000);
-        setTimeout(() => {
-          history.push("/login");
-        }, 6000);
+    if (name === "" || email === "" || password === "") {
+      setMsg("");
+      toast.error("Please Fill the Required Fields ");
+    } else {
+      setMsg("");
+      setValues({ ...values, buttonText: "Submitting" });
+      axios({
+        method: "POST",
+        url: `${process.env.REACT_APP_API}/api/signup`,
+        data: { name, email, password },
       })
-      .catch((error) => {
-        console.log("SIGNU ERROR ", error.response.data);
-        setValues({ ...values, buttonText: "Submit" });
-        toast.error(error.response.data.error);
-      });
+        .then((response) => {
+          console.log("SIGNUP SUCESSS");
+          setValues({
+            ...values,
+            name: "",
+            email: "",
+            password: "",
+            buttonText: "Submitted",
+          });
+          toast.success(response.data.message);
+          setTimeout(() => {
+            toast.success(
+              `Hey ${
+                JSON.parse(response.config.data).name
+              }! You will be redirecting to login Page!`
+            );
+          }, 2000);
+          setTimeout(() => {
+            history.push("/login");
+          }, 6000);
+        })
+        .catch((error) => {
+          console.log("SIGNU ERROR ", error.response.data);
+          setValues({ ...values, buttonText: "Submit" });
+          toast.error(error.response.data.error);
+        });
+    }
   };
 
   const signup = () => (
@@ -68,6 +76,7 @@ const Signup = ({ history }) => {
           type="text"
           className="form-control"
           onChange={handleChange("name")}
+          required
           value={name}
         />
       </div>
@@ -76,6 +85,7 @@ const Signup = ({ history }) => {
         <input
           type="email"
           className="form-control"
+          required
           onChange={handleChange("email")}
           value={email}
         />
@@ -85,6 +95,7 @@ const Signup = ({ history }) => {
         <input
           type="password"
           className="form-control"
+          required
           onChange={handleChange("password")}
           value={password}
         />
@@ -93,6 +104,9 @@ const Signup = ({ history }) => {
         <button className="btn btn-primary" onClick={clickSubmit}>
           {buttonText}
         </button>
+      </div>
+      <div>
+        <p className="text-muted">{msg}</p>
       </div>
     </form>
   );

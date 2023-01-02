@@ -11,6 +11,7 @@ import Facebook from "./Facebook";
 
 const Login = ({ history }) => {
   //! states
+  const [msg, setMsg] = useState("");
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -33,33 +34,46 @@ const Login = ({ history }) => {
   };
 
   const clickSubmit = (event) => {
+    setMsg("Please Wait ...");
     event.preventDefault();
-    axios({
-      method: "POST",
-      url: `${process.env.REACT_APP_API}/api/login`,
-      data: { email, password },
-    })
-      .then((response) => {
-        console.log("LOGIN SUCCESS ", response);
-        //! Save the response (user, token) localstorage/cookie
-        authenticate(response, () => {
+    if (email === "" || password === "") {
+      setMsg("");
+      toast.error("Fill the required Input");
+    } else {
+      axios({
+        method: "POST",
+        url: `${process.env.REACT_APP_API}/api/login`,
+        data: { email, password },
+      })
+        .then((response) => {
+          console.log("LOGIN SUCCESS ", response);
+          //! Save the response (user, token) localstorage/cookie
+          authenticate(response, () => {
+            setValues({
+              ...values,
+              email: "",
+              password: "",
+              buttonText: "Logged In",
+            });
+            // toast.success(`Hey! ${response.data.user.name}, Welcome Back!`);
+            isAuth() && isAuth().role === "admin"
+              ? history.push("/admin")
+              : history.push("/private");
+          });
+        })
+        .catch((error) => {
+          console.log("LOGIN ERROR ", error);
           setValues({
             ...values,
             email: "",
             password: "",
-            buttonText: "Logged In",
+            buttonText: "Login",
           });
-          // toast.success(`Hey! ${response.data.user.name}, Welcome Back!`);
-          isAuth() && isAuth().role === "admin"
-            ? history.push("/admin")
-            : history.push("/private");
+          setMsg("");
+          alert("Login Error", error);
+          toast.error(error.response.data.error);
         });
-      })
-      .catch((error) => {
-        console.log("LOGIN ERROR ", error);
-        setValues({ ...values, email: "", password: "", buttonText: "Login" });
-        toast.error(error.response.data.error);
-      });
+    }
   };
   const login = () => (
     <form>
@@ -69,6 +83,7 @@ const Login = ({ history }) => {
           type="email"
           className="form-control"
           onChange={handleChange("email")}
+          required
           value={email}
         />
       </div>
@@ -78,6 +93,7 @@ const Login = ({ history }) => {
           type="password"
           className="form-control"
           onChange={handleChange("password")}
+          required
           value={password}
         />
       </div>
@@ -85,6 +101,9 @@ const Login = ({ history }) => {
         <button className="btn btn-primary" onClick={clickSubmit}>
           {buttonText}
         </button>
+      </div>
+      <div>
+        <p className="text-muted">{msg}</p>
       </div>
     </form>
   );
