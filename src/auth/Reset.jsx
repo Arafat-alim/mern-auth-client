@@ -4,6 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+import { Toast } from "react-toastify/dist/components";
 
 const Reset = ({ match, history }) => {
   const [values, setValues] = useState({
@@ -34,8 +35,13 @@ const Reset = ({ match, history }) => {
     })
       .then((response) => {
         console.log("RESET PASSWORD SUCCESS", response.data);
+        document.getElementById("pwd").disabled = true;
         setValues({ ...values, newPassword: "" });
-        toast.success(response.data);
+        toast.success(response.data.message);
+        setTimeout(() => {
+          toast.success("You are redirecting to the Login page. Please Login!");
+          history.push("/login");
+        }, 5000);
       })
       .catch((err) => {
         console.log("RESET PASSWORD FAILED", err.response.data.error);
@@ -60,6 +66,7 @@ const Reset = ({ match, history }) => {
             type="password"
             value={newPassword}
             onChange={handleChange("newPassword")}
+            id="pwd"
             required
           />
         </div>
